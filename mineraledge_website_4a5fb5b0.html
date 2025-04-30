@@ -1,0 +1,739 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MineralEdge Advisory</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome CDN for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Google Fonts: Playfair Display and Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fef3c7; /* Soft amber ivory */
+            color: #374151; /* Deep gray */
+            line-height: 1.6;
+            margin: 0;
+        }
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            letter-spacing: 0.04em;
+            color: #0f172a; /* Deep slate */
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f172a, #334155); /* Luxurious slate gradient */
+        }
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: background 0.3s ease;
+        }
+        .nav-glass {
+            background: rgba(15, 23, 42, 0.9); /* Subtle tint for nav */
+        }
+        @media (prefers-reduced-transparency: reduce) {
+            .glassmorphism, .nav-glass {
+                background: rgba(255, 255, 255, 0.3);
+                backdrop-filter: none;
+            }
+        }
+        .section-hidden {
+            display: none;
+        }
+        .fadeInUp {
+            animation: fadeInUp 0.8s ease-in-out;
+        }
+        @keyframes fadeInUp {
+            from { transform: translateY(15px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .parallax {
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+        }
+        .nav-link {
+            color: #e5b76e; /* Lighter amber */
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65); /* Stronger shadow */
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.5s ease, transform 0.3s ease;
+            padding: 8px 4px;
+        }
+        .nav-link:hover {
+            color: #d4a017; /* Darker amber */
+            transform: translateY(-1px);
+        }
+        .nav-link:focus {
+            outline: 2px solid #d4a017;
+            outline-offset: 2px;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: #d4a017;
+            transition: width 0.5s ease;
+        }
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+        .nav-link.active {
+            color: #d4a017;
+            aria-current: page;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            z-index: 1000;
+        }
+        .modal-content {
+            background: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 20px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+        }
+        .chart-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #e5b76e, #d4a017);
+            color: #0f172a;
+            padding: 10px 20px;
+            border-radius: 9999px;
+            font-weight: 500;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .card {
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+            border-radius: 20px;
+        }
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
+        }
+        .sector-icon, .about-icon, .service-icon, .team-icon {
+            font-size: 2rem;
+            color: #e5b76e;
+            transition: color 0.5s ease, transform 0.5s ease;
+        }
+        .card:hover .sector-icon, .card:hover .about-icon, .card:hover .service-icon, .card:hover .team-icon {
+            color: #d4a017;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="gradient-bg py-4 sticky top-0 z-50 shadow-lg glassmorphism nav-glass">
+        <div class="container mx-auto max-w-5xl px-6 flex justify-between items-center">
+            <h1 class="text-2xl font-medium text-[#e5b76e]">MineralEdge Advisory</h1>
+            <div class="space-x-8" id="nav-links">
+                <a href="#" data-section="home" class="nav-link" tabindex="0">Home</a>
+                <a href="#" data-section="about" class="nav-link" tabindex="0">About</a>
+                <a href="#" data-section="services" class="nav-link" tabindex="0">Services</a>
+                <a href="#" data-section="sector-focus" class="nav-link" tabindex="0">Sector Focus</a>
+                <a href="#" data-section="meip-demo" class="nav-link" tabindex="0">MEIP Demo</a>
+                <a href="#" data-section="team" class="nav-link" tabindex="0">Team</a>
+                <a href="#" data-section="contact" class="nav-link" tabindex="0">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Home Section -->
+    <section id="home" class="py-20 gradient-bg text-white text-center parallax" style="background-image: url('https://images.unsplash.com/photo-1620121692029-d088224ddc74?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
+        <div class="container mx-auto max-w-5xl px-6 fadeInUp">
+            <h2 class="text-5xl font-medium text-[#e5b76e]">Transforming the Saudi-South African Mineral Corridor</h2>
+            <p class="mt-6 text-base max-w-3xl mx-auto">From the heart of Limpopo and Venda, MineralEdge Advisory weaves a tapestry of innovation, cultural resonance, and strategic foresight, unlocking multibillion-dollar opportunities in critical minerals for a sustainable future.</p>
+            <button onclick="showSection('meip-demo')" class="mt-8 btn-primary">Discover the MEIP Demo</button>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section-hidden py-20 bg-white">
+        <div class="container mx-auto max-w-5xl px-6">
+            <h2 class="text-4xl font-medium text-center fadeInUp">Our Journey</h2>
+            <p class="mt-6 text-base max-w-3xl mx-auto">MineralEdge Advisory was born from a vision to bridge two worlds: Saudi Arabia’s ambitious Vision 2030 and South Africa’s unparalleled mineral wealth. Rooted in the vibrant communities of Limpopo and Venda, our story is one of cultural authenticity, technological prowess, and a relentless pursuit of inclusive prosperity.</p>
+            <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center card bg-white p-6">
+                    <i class="fas fa-eye about-icon mb-4"></i>
+                    <h3 class="text-xl font-medium">Vision</h3>
+                    <p class="mt-4 text-sm text-[#6b7280]">To redefine mineral investments by harnessing AI, deep regional expertise, and strategic diplomacy, creating transformative opportunities.</p>
+                </div>
+                <div class="text-center card bg-white p-6">
+                    <i class="fas fa-rocket about-icon mb-4"></i>
+                    <h3 class="text-xl font-medium">Mission</h3>
+                    <p class="mt-4 text-sm text-[#6b7280]">To empower global investors with innovative, technology-driven strategies that anticipate challenges and foster sustainable growth.</p>
+                </div>
+                <div class="text-center card bg-white p-6">
+                    <i class="fas fa-chart-line about-icon mb-4"></i>
+                    <h3 class="text-xl font-medium">Market Opportunity</h3>
+                    <p class="mt-4 text-sm text-[#6b7280]">Unlocking value in lithium, manganese, and platinum through advanced infrastructure and undervalued assets.</p>
+                </div>
+            </div>
+            <div class="mt-12 text-center">
+                <i class="fas fa-leaf about-icon mb-4"></i>
+                <h3 class="text-xl font-medium">Our Cultural Roots</h3>
+                <p class="mt-4 text-sm text-[#6b7280] max-w-2xl mx-auto">Our team’s deep ties to Limpopo and Venda infuse every engagement with authenticity, ensuring trust with communities and stakeholders.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="section-hidden py-20 bg-[#fef3c7]">
+        <div class="container mx-auto max-w-5xl px-6">
+            <h2 class="text-4xl font-medium text-center fadeInUp">Our Expertise</h2>
+            <p class="mt-6 text-base text-center max-w-3xl mx-auto">MineralEdge Advisory offers a dynamic suite of services designed to navigate the complexities of the Saudi-South African mineral corridor, delivering unparalleled value through innovation and collaboration.</p>
+            <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="card bg-white p-6 glassmorphism">
+                    <i class="fas fa-brain service-icon mb-4"></i>
+                    <h3 class="text-xl font-medium">Intelligence & Analysis</h3>
+                    <p class="mt-4 text-sm text-[#6b7280]">Our AI-powered MineralEdge Insight Platform delivers real-time market monitoring, predictive analytics, and stakeholder mapping.</p>
+                    <button onclick="openModal('intelModal')" class="mt-4 text-[#e5b76e] underline hover:text-[#d4a017] text-sm">View Case Study</button>
+                </div>
+                <div class="card bg-white p-6 glassmorphism">
+                    <i class="fas fa-chess service-icon mb-4"></i>
+                    <h3 class="text-xl font-medium">Strategic Advisory</h3>
+                    <p class="mt-4 text-sm text-[#6b7280]">We craft tailored government relations, crisis management, and regulatory advocacy strategies.</p>
+                    <button onclick="openModal('advisoryModal')" class="mt-4 text-[#e5b76e] underline hover:text-[#d4a017] text-sm">View Case Study</button>
+                </div>
+                <div class="card bg-white p-6 glassmorphism">
+                    <i class="fas fa-handshake service-icon mb-4"></i>
+                    <h3 class="text-xl font-medium">Transaction Support</h3>
+                    <p class="mt-4 text-sm text-[#6b7280]">From due diligence to BEE compliance and deal structuring, we mitigate risks and secure licenses.</p>
+                    <button onclick="openModal('transactionModal')" class="mt-4 text-[#e5b76e] underline hover:text-[#d4a017] text-sm">View Case Study</button>
+                </div>
+            </div>
+            <!-- Modals for Case Studies -->
+            <div id="intelModal" class="modal">
+                <div class="modal-content fadeInUp">
+                    <h3 class="text-xl font-medium">Case Study: Lithium Market Analysis</h3>
+                    <p class="mt-4 text-sm text-[#6b7280]">Using MEIP’s sentiment analysis, we identified a 20% undervaluation in South African lithium assets, enabling a $500M investment deal with Saudi partners.</p>
+                    <button onclick="closeModal('intelModal')" class="mt-6 btn-primary text-sm">Close</button>
+                </div>
+            </div>
+            <div id="advisoryModal" class="modal">
+                <div class="modal-content fadeInUp">
+                    <h3 class="text-xl font-medium">Case Study: Regulatory Navigation</h3>
+                    <p class="mt-4 text-sm text-[#6b7280]">Our strategic advisory team secured streamlined licensing for a $400M manganese project, reducing approval time by 30%.</p>
+                    <button onclick="closeModal('advisoryModal')" class="mt-6 btn-primary text-sm">Close</button>
+                </div>
+            </div>
+            <div id="transactionModal" class="modal">
+                <div class="modal-content fadeInUp">
+                    <h3 class="text-xl font-medium">Case Study: BEE Compliance</h3>
+                    <p class="mt-4 text-sm text-[#6b7280]">We structured a $300M platinum deal, ensuring full BEE compliance and creating 200 sustainable jobs.</p>
+                    <button onclick="closeModal('transactionModal')" class="mt-6 btn-primary text-sm">Close</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sector Focus Section -->
+    <section id="sector-focus" class="section-hidden py-20 bg-white">
+        <div class="container mx-auto max-w-5xl px-6">
+            <h2 class="text-4xl font-medium text-center fadeInUp">Sector Focus</h2>
+            <p class="mt-6 text-base text-center max-w-3xl mx-auto">Our expertise spans critical mineral sectors, driving innovation and value creation in the Saudi-South African mineral corridor.</p>
+            <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="card bg-white p-6 glassmorphism text-center">
+                    <i class="fas fa-battery-full sector-icon mb-4"></i>
+                    <h3 class="text-xl font-medium">Battery Minerals</h3>
+                    <p class="mt-4 text-sm text-[#6b7280]">Powering the energy transition with lithium, cobalt, and nickel for EV batteries and storage solutions.</p>
+                    <button onclick="openModal('batteryModal')" class="mt-4 text-[#e5b76e] underline hover:text-[#d4a017] text-sm">Learn More</button>
+                </div>
+                <div class="card bg-white p-6 glassmorphism text-center">
+                    <i class="fas fa-industry sector-icon mb-4"></i>
+                    <h3 class="text-xl font-medium">Industrial Minerals</h3>
+                    <p class="mt-4 text-sm text-[#6b7280]">Supporting global manufacturing with manganese and other minerals for steel and industrial applications.</p>
+                    <button onclick="openModal('industrialModal')" class="mt-4 text-[#e5b76e] underline hover:text-[#d4a017] text-sm">Learn More</button>
+                </div>
+                <div class="card bg-white p-6 glassmorphism text-center">
+                    <i class="fas fa-gem sector-icon mb-4"></i>
+                    <h3 class="text-xl font-medium">Precious Metals</h3>
+                    <p class="mt-4 text-sm text-[#6b7280]">Unlocking value in platinum and gold for jewelry, technology, and investment markets.</p>
+                    <button onclick="openModal('preciousModal')" class="mt-4 text-[#e5b76e] underline hover:text-[#d4a017] text-sm">Learn More</button>
+                </div>
+                <div class="card bg-white p-6 glassmorphism text-center">
+                    <i class="fas fa-atom sector-icon mb-4"></i>
+                    <h3 class="text-xl font-medium">Rare Earths</h3>
+                    <p class="mt-4 text-sm text-[#6b7280]">Enabling renewable energy and advanced tech with rare earth elements for magnets and electronics.</p>
+                    <button onclick="openModal('rareEarthsModal')" class="mt-4 text-[#e5b76e] underline hover:text-[#d4a017] text-sm">Learn More</button>
+                </div>
+            </div>
+            <!-- Modals for Sector Focus -->
+            <div id="batteryModal" class="modal">
+                <div class="modal-content fadeInUp">
+                    <h3 class="text-xl font-medium">Battery Minerals</h3>
+                    <p class="mt-4 text-sm text-[#6b7280]">Our AI-driven analytics identify undervalued lithium and cobalt assets, securing $500M in Saudi-South African deals for EV battery supply chains.</p>
+                    <button onclick="closeModal('batteryModal')" class="mt-6 btn-primary text-sm">Close</button>
+                </div>
+            </div>
+            <div id="industrialModal" class="modal">
+                <div class="modal-content fadeInUp">
+                    <h3 class="text-xl font-medium">Industrial Minerals</h3>
+                    <p class="mt-4 text-sm text-[#6b7280]">We optimize manganese supply chains, streamlining $400M in industrial projects with advanced infrastructure insights.</p>
+                    <button onclick="closeModal('industrialModal')" class="mt-6 btn-primary text-sm">Close</button>
+                </div>
+            </div>
+            <div id="preciousModal" class="modal">
+                <div class="modal-content fadeInUp">
+                    <h3 class="text-xl font-medium">Precious Metals</h3>
+                    <p class="mt-4 text-sm text-[#6b7280]">Our expertise in platinum and gold markets supports $300M deals, ensuring compliance and sustainable growth.</p>
+                    <button onclick="closeModal('preciousModal')" class="mt-6 btn-primary text-sm">Close</button>
+                </div>
+            </div>
+            <div id="rareEarthsModal" class="modal">
+                <div class="modal-content fadeInUp">
+                    <h3 class="text-xl font-medium">Rare Earths</h3>
+                    <p class="mt-4 text-sm text-[#6b7280]">We unlock rare earth opportunities for renewables, leveraging MEIP to drive $200M in high-tech investments.</p>
+                    <button onclick="closeModal('rareEarthsModal')" class="mt-6 btn-primary text-sm">Close</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MEIP Demo Section -->
+    <section id="meip-demo" class="section-hidden py-20 bg-[#fef3c7]">
+        <div class="container mx-auto max-w-5xl px-6">
+            <h2 class="text-4xl font-medium text-center fadeInUp">MineralEdge Insight Platform</h2>
+            <p class="mt-6 text-base text-center max-w-3xl mx-auto">Experience the power of AI-driven analytics, designed to uncover opportunities in South Africa’s undervalued mineral assets and advanced infrastructure.</p>
+            <div class="mt-12 flex justify-center space-x-3 flex-wrap">
+                <button onclick="showChart('sentiment')" class="btn-primary m-2 text-sm">Sentiment Analysis</button>
+                <button onclick="showChart('policy')" class="btn-primary m-2 text-sm">Policy Shift Detection</button>
+                <button onclick="showChart('stakeholder')" class="btn-primary m-2 text-sm">Stakeholder Mapping</button>
+                <button onclick="showChart('infrastructure')" class="btn-primary m-2 text-sm">Infrastructure Visualizations</button>
+            </div>
+            <div id="sentimentChart" class="chart-container section-hidden">
+                <canvas id="sentimentCanvas"></canvas>
+                <button onclick="alert('Simulated: Downloading Sentiment Report')" class="mt-4 btn-primary text-sm">Download Report</button>
+            </div>
+            <div id="policyChart" class="chart-container section-hidden">
+                <canvas id="policyCanvas"></canvas>
+                <button onclick="alert('Simulated: Downloading Policy Timeline')" class="mt-4 btn-primary text-sm">Download Timeline</button>
+            </div>
+            <div id="stakeholderChart" class="chart-container section-hidden">
+                <canvas id="stakeholderCanvas"></canvas>
+                <p class="text-center text-[#6b7280] mt-4 text-sm">Note: Full stakeholder network visualization requires Vis.js in a production environment.</p>
+            </div>
+            <div id="infrastructureChart" class="chart-container section-hidden">
+                <canvas id="infrastructureCanvas"></canvas>
+                <button onclick="alert('Simulated: Downloading Infrastructure Report')" class="mt-4 btn-primary text-sm">Download Report</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section id="team" class="section-hidden py-20 bg-white">
+        <div class="container mx-auto max-w-5xl px-6">
+            <h2 class="text-4xl font-medium text-center fadeInUp">Our Visionary Team</h2>
+            <p class="mt-6 text-base text-center max-w-3xl mx-auto">United by a shared passion for transformation, our founders bring unparalleled expertise to MineralEdge’s mission.</p>
+            <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="card bg-white p-6 glassmorphism text-center">
+                    <i class="fas fa-user-tie team-icon mb-4"></i>
+                    <h3 class="text-xl font-medium">Ticha Tsedu</h3>
+                    <p class="text-[#6b7280] text-sm">Chief Executive Officer</p>
+                    <button onclick="openModal('tichaModal')" class="mt-4 text-[#e5b76e] underline hover:text-[#d4a017] text-sm">Learn More</button>
+                </div>
+                <div class="card bg-white p-6 glassmorphism text-center">
+                    <i class="fas fa-gavel team-icon mb-4"></i>
+                    <h3 class="text-xl font-medium">Mojanku Gumbi</h3>
+                    <p class="text-[#6b7280] text-sm">Political Strategy Director</p>
+                    <button onclick="openModal('mojankuModal')" class="mt-4 text-[#e5b76e] underline hover:text-[#d4a017] text-sm">Learn More</button>
+                </div>
+                <div class="card bg-white p-6 glassmorphism text-center">
+                    <i class="fas fa-newspaper team-icon mb-4"></i>
+                    <h3 class="text-xl font-medium">Mathatha Tsedu</h3>
+                    <p class="text-[#6b7280] text-sm">Stakeholder Engagement Director</p>
+                    <button onclick="openModal('mathathaModal')" class="mt-4 text-[#e5b76e] underline hover:text-[#d4a017] text-sm">Learn More</button>
+                </div>
+                <div class="card bg-white p-6 glassmorphism text-center">
+                    <i class="fas fa-hard-hat team-icon mb-4"></i>
+                    <h3 class="text-xl font-medium">Matodzi Nesongozwi</h3>
+                    <p class="text-[#6b7280] text-sm">Mining Operations Advisor</p>
+                    <button onclick="openModal('matodziModal')" class="mt-4 text-[#e5b76e] underline hover:text-[#d4a017] text-sm">Learn More</button>
+                </div>
+            </div>
+            <!-- Modals for Team Bios -->
+            <div id="tichaModal" class="modal">
+                <div class="modal-content fadeInUp">
+                    <h3 class="text-xl font-medium">Ticha Tsedu, CEO</h3>
+                    <p class="mt-4 text-sm text-[#6b7280]">A visionary AI engineer, Ticha drives MineralEdge’s digital transformation with expertise in manganese market research and political trend analysis.</p>
+                    <button onclick="closeModal('tichaModal')" class="mt-6 btn-primary text-sm">Close</button>
+                </div>
+            </div>
+            <div id="mojankuModal" class="modal">
+                <div class="modal-content fadeInUp">
+                    <h3 class="text-xl font-medium">Mojanku Gumbi, Political Strategy Director</h3>
+                    <p class="mt-4 text-sm text-[#6b7280]">A renowned lawyer, Mojanku leverages her advisory experience to align Saudi-South African interests with culturally sensitive regulatory navigation.</p>
+                    <button onclick="closeModal('mojankuModal')" class="mt-6 btn-primary text-sm">Close</button>
+                </div>
+            </div>
+            <div id="mathathaModal" class="modal">
+                <div class="modal-content fadeInUp">
+                    <h3 class="text-xl font-medium">Mathatha Tsedu, Stakeholder Engagement Director</h3>
+                    <p class="mt-4 text-sm text-[#6b7280]">An award-winning journalist, Mathatha’s media and community networks build trust with stakeholders, amplifying MineralEdge’s engagement.</p>
+                    <button onclick="closeModal('mathathaModal')" class="mt-6 btn-primary text-sm">Close</button>
+                </div>
+            </div>
+            <div id="matodziModal" class="modal">
+                <div class="modal-content fadeInUp">
+                    <h3 class="text-xl font-medium">Matodzi Nesongozwi, Mining Operations Advisor</h3>
+                    <p class="mt-4 text-sm text-[#6b7280]">As CEO of Manngwe Mining, Matodzi optimizes transaction support with industry ties and BEE compliance expertise.</p>
+                    <button onclick="closeModal('matodziModal')" class="mt-6 btn-primary text-sm">Close</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section-hidden py-20 bg-[#0f172a] text-white">
+        <div class="container mx-auto max-w-5xl px-6">
+            <h2 class="text-4xl font-medium text-center fadeInUp">Join Our Journey</h2>
+            <p class="mt-6 text-base text-center max-w-3xl mx-auto">Connect with MineralEdge Advisory to explore transformative opportunities in the Saudi-South African mineral corridor.</p>
+            <div class="mt-12 max-w-md mx-auto">
+                <h3 class="text-xl font-medium text-center">Send Us a Message</h3>
+                <div class="bg-white p-6 rounded-2xl shadow-lg mt-4 glassmorphism text-[#374151]">
+                    <p class="text-[#6b7280] text-sm">This is a demo form. In a live environment, you would submit inquiries here.</p>
+                    <input type="text" placeholder="Name" class="w-full p-3 mt-4 border rounded-lg" disabled>
+                    <input type="email" placeholder="Email" class="w-full p-3 mt-4 border rounded-lg" disabled>
+                    <textarea placeholder="Message" class="w-full p-3 mt-4 border rounded-lg" rows="5" disabled></textarea>
+                    <button class="mt-6 btn-primary text-sm" disabled>Submit (Demo)</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-[#0f172a] text-white py-8">
+        <div class="container mx-auto max-w-5xl px-6 text-center">
+            <p class="text-sm">© 2025 MineralEdge Advisory. All rights reserved.</p>
+            <p class="mt-4 text-sm">
+                <a href="#" data-section="contact" class="underline hover:text-[#e5b76e]">Contact Us</a> | 
+                <a href="#" data-section="about" class="underline hover:text-[#e5b76e]">About</a> | 
+                <a href="#" data-section="services" class="underline hover:text-[#e5b76e]">Services</a> | 
+                <a href="#" data-section="sector-focus" class="underline hover:text-[#e5b76e]">Sector Focus</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Interactivity -->
+    <script>
+        // Simulated NewsAPI data for visualizations
+        const sentimentData = {
+            labels: ['Lithium', 'Manganese', 'Platinum', 'Gold', 'Cobalt', 'Rare Earths'],
+            scores: [0.78, 0.42, 0.67, 0.38, 0.53, 0.61],
+            details: {
+                'Lithium': 'Strong positive sentiment driven by EV battery demand.',
+                'Manganese': 'Neutral sentiment amid export policy uncertainties.',
+                'Platinum': 'Positive sentiment due to green hydrogen applications.',
+                'Gold': 'Cautious sentiment reflecting global market volatility.',
+                'Cobalt': 'Moderate sentiment with growth in battery supply chains.',
+                'Rare Earths': 'Emerging positive sentiment for renewable energy.'
+            }
+        };
+        const policyData = {
+            labels: ['Q1 2024', 'Q2 2024', 'Q3 2024', 'Q4 2024', 'Q1 2025', 'Q2 2025'],
+            scores: [0.22, 0.31, 0.58, 0.47, 0.64, 0.69],
+            annotations: [
+                { x: 'Q3 2024', label: 'Mining Charter Update' },
+                { x: 'Q1 2025', label: 'BEE Policy Revision' },
+                { x: 'Q2 2025', label: 'Environmental Regulation Shift' }
+            ]
+        };
+        const infrastructureData = {
+            labels: ['Limpopo', 'Mpumalanga', 'North West', 'Gauteng', 'Northern Cape'],
+            values: [40, 25, 20, 10, 5],
+            details: {
+                'Limpopo': 'Advanced rail and port infrastructure.',
+                'Mpumalanga': 'Robust coal infrastructure transitioning to critical minerals.',
+                'North West': 'Platinum-rich region with modern facilities.',
+                'Gauteng': 'Logistics hub supporting mineral trade.',
+                'Northern Cape': 'Emerging lithium and rare earth deposits.'
+            }
+        };
+        const stakeholderData = {
+            labels: ['Saudi Investors', 'SA Government', 'Limpopo Communities', 'Manngwe Mining', 'Unions', 'Traditional Authorities', 'NGOs'],
+            influence: [30, 30, 25, 25, 20, 20, 20],
+            details: {
+                'Saudi Investors': 'Driving Vision 2030 with investments.',
+                'SA Government': 'Shapes mining policies and BEE compliance.',
+                'Limpopo Communities': 'Key stakeholders in sustainable development.',
+                'Manngwe Mining': 'Black-owned junior miner scaling operations.',
+                'Unions': 'Advocates for labor rights.',
+                'Traditional Authorities': 'Custodians of land and heritage.',
+                'NGOs': 'Promote environmental sustainability.'
+            }
+        };
+
+        // Chart.js: Sentiment Analysis
+        const sentimentCtx = document.getElementById('sentimentCanvas')?.getContext('2d');
+        if (sentimentCtx) {
+            const sentimentChart = new Chart(sentimentCtx, {
+                type: 'bar',
+                data: {
+                    labels: sentimentData.labels,
+                    datasets: [{
+                        label: 'Sentiment Score',
+                        data: sentimentData.scores,
+                        backgroundColor: 'rgba(229, 183, 110, 0.5)',
+                        borderColor: 'rgba(229, 183, 110, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: { beginAtZero: true, max: 1, title: { display: true, text: 'Sentiment Score (0-1)' } },
+                        x: { title: { display: true, text: 'Mineral' } }
+                    },
+                    plugins: {
+                        title: { display: true, text: 'Sentiment Analysis of Mineral News', font: { size: 18, family: 'Playfair Display' } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return sentimentData.details[context.label] || context.label + ': ' + context.raw;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart.js: Policy Shift Detection
+        const policyCtx = document.getElementById('policyCanvas')?.getContext('2d');
+        if (policyCtx) {
+            const policyChart = new Chart(policyCtx, {
+                type: 'line',
+                data: {
+                    labels: policyData.labels,
+                    datasets: [{
+                        label: 'Regulatory Sentiment',
+                        data: policyData.scores,
+                        borderColor: 'rgba(51, 65, 85, 1)',
+                        backgroundColor: 'rgba(51, 65, 85, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: { beginAtZero: true, max: 1, title: { display: true, text: 'Sentiment Score (0-1)' } },
+                        x: { title: { display: true, text: 'Quarter' } }
+                    },
+                    plugins: {
+                        title: { display: true, text: 'Policy Shift Detection Over Time', font: { size: 18, family: 'Playfair Display' } },
+                        annotation: {
+                            annotations: policyData.annotations.map(ann => ({
+                                type: 'line',
+                                xMin: ann.x,
+                                xMax: ann.x,
+                                borderColor: '#e5b76e',
+                                borderWidth: 2,
+                                label: { content: ann.label, enabled: true, position: 'top', backgroundColor: '#0f172a', color: '#fff' }
+                            }))
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart.js: Infrastructure Visualizations
+        const infrastructureCtx = document.getElementById('infrastructureCanvas')?.getContext('2d');
+        if (infrastructureCtx) {
+            const infrastructureChart = new Chart(infrastructureCtx, {
+                type: 'pie',
+                data: {
+                    labels: infrastructureData.labels,
+                    datasets: [{
+                        label: 'Infrastructure Distribution',
+                        data: infrastructureData.values,
+                        backgroundColor: [
+                            'rgba(51, 65, 85, 0.5)',
+                            'rgba(229, 183, 110, 0.5)',
+                            'rgba(21, 128, 61, 0.5)',
+                            'rgba(185, 28, 28, 0.5)',
+                            'rgba(109, 40, 217, 0.5)'
+                        ],
+                        borderColor: [
+                            'rgba(51, 65, 85, 1)',
+                            'rgba(229, 183, 110, 1)',
+                            'rgba(21, 128, 61, 1)',
+                            'rgba(185, 28, 28, 1)',
+                            'rgba(109, 40, 217, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    plugins: {
+                        title: { display: true, text: 'Advanced Mining Infrastructure by Region', font: { size: 18, family: 'Playfair Display' } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return infrastructureData.details[context.label] || context.label + ': ' + context.raw + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart.js: Stakeholder Mapping (Simplified Bar Chart)
+        const stakeholderCtx = document.getElementById('stakeholderCanvas')?.getContext('2d');
+        if (stakeholderCtx) {
+            const stakeholderChart = new Chart(stakeholderCtx, {
+                type: 'bar',
+                data: {
+                    labels: stakeholderData.labels,
+                    datasets: [{
+                        label: 'Influence Score',
+                        data: stakeholderData.influence,
+                        backgroundColor: 'rgba(21, 128, 61, 0.5)',
+                        borderColor: 'rgba(21, 128, 61, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Influence Score' } },
+                        x: { title: { display: true, text: 'Stakeholder' } }
+                    },
+                    plugins: {
+                        title: { display: true, text: 'Stakeholder Influence (Simplified)', font: { size: 18, family: 'Playfair Display' } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return stakeholderData.details[context.label] || context.label + ': ' + context.raw;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Section Navigation
+        function showSection(sectionId) {
+            console.log(`Attempting to navigate to section: ${sectionId}`);
+            document.querySelectorAll('section').forEach(section => {
+                section.classList.add('section-hidden');
+            });
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.remove('section-hidden');
+                console.log(`Successfully showed section: ${sectionId}`);
+            } else {
+                console.error(`Section not found: ${sectionId}`);
+            }
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                link.removeAttribute('aria-current');
+                if (link.dataset.section === sectionId) {
+                    link.classList.add('active');
+                    link.setAttribute('aria-current', 'page');
+                }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Event Delegation for Navigation Links
+        document.addEventListener('DOMContentLoaded', () => {
+            const navContainer = document.getElementById('nav-links');
+            if (navContainer) {
+                navContainer.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const link = event.target.closest('.nav-link');
+                    if (link) {
+                        const sectionId = link.dataset.section;
+                        if (sectionId) {
+                            showSection(sectionId);
+                        }
+                    }
+                });
+                navContainer.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        const link = event.target.closest('.nav-link');
+                        if (link) {
+                            const sectionId = link.dataset.section;
+                            if (sectionId) {
+                                showSection(sectionId);
+                            }
+                        }
+                    }
+                });
+            } else {
+                console.error('Navigation container not found');
+            }
+            showSection('home');
+        });
+
+        // Chart Visibility
+        function showChart(chartId) {
+            console.log(`Showing chart: ${chartId}`);
+            document.querySelectorAll('.chart-container').forEach(container => {
+                container.classList.add('section-hidden');
+            });
+            const targetChart = document.getElementById(chartId + 'Chart');
+            if (targetChart) {
+                targetChart.classList.remove('section-hidden');
+            } else {
+                console.error(`Chart not found: ${chartId}`);
+            }
+        }
+
+        // Modal Controls
+        function openModal(modalId) {
+            console.log(`Opening modal: ${modalId}`);
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+            } else {
+                console.error(`Modal not found: ${modalId}`);
+            }
+        }
+        function closeModal(modalId) {
+            console.log(`Closing modal: ${modalId}`);
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            } else {
+                console.error(`Modal not found: ${modalId}`);
+            }
+        }
+    </script>
+</body>
+</html>
